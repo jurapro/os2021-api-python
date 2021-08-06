@@ -1,7 +1,8 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.fields import CharField
 
-from .models import User, Role
+from .models import User, Role, WorkShift
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -48,3 +49,22 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['role']
+
+
+class WorkShiftSerializer(serializers.ModelSerializer):
+    start = serializers.DateTimeField(format="%Y-%m-%d %H:%M", input_formats=['%Y-%m-%d %H:%M'])
+    end = serializers.DateTimeField(format="%Y-%m-%d %H:%M", input_formats=['%Y-%m-%d %H:%M'])
+
+    def validate_start(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError('The start date of the shift cannot be earlier than now')
+        return value
+
+    def validate(self, data):
+        if data['start'] >= data['end']:
+            raise serializers.ValidationError('The end date of the shift cannot be earlier than the start date')
+        return data
+
+    class Meta:
+        model = WorkShift
+        exclude = ['active']

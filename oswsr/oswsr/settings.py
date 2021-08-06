@@ -131,3 +131,4 @@ AUTH_USER_MODEL = 'api.User'
 
 MEDIA_ROOT = os.path.join(BASE_DIR.parent, 'photos')
 MEDIA_URL = '/photos/'
+

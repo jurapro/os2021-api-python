@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from rest_framework.authentication import get_authorization_header
@@ -20,7 +21,9 @@ class User(AbstractBaseUser):
     patronymic = models.CharField(max_length=100, blank=True)
     login = models.CharField(max_length=254, unique=True)
     password = models.CharField(max_length=254, blank=False)
-    photo_file = models.ImageField(max_length=254, upload_to=get_name_file, blank=True, null=True)
+    photo_file = models.ImageField(max_length=254, upload_to=get_name_file,
+                                   blank=True, null=True,
+                                   validators=[FileExtensionValidator(allowed_extensions=['png', 'jpg', 'jpeg'])])
     api_token = models.CharField(max_length=254, blank=True)
     status = models.CharField(max_length=254, choices=[('working', 'working'), ('fired', 'fired')], default='working')
     last_login = models.DateTimeField(db_column='updated_at', blank=True, null=True)
@@ -39,3 +42,12 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = 'users'
+
+
+class WorkShift(models.Model):
+    start = models.DateTimeField(blank=False)
+    end = models.DateTimeField(blank=False)
+    active = models.BooleanField(blank=True, default=False)
+
+    class Meta:
+        db_table = 'work_shifts'
