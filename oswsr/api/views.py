@@ -58,8 +58,17 @@ class UserList(APIView):
 
     def post(self, request, format=None):
         serializer = UserCreateSerializer(data=request.data)
+
         if not (serializer.is_valid()):
             raise CafeValidationAPIException(message='Validation error',
                                              code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                              errors=serializer.errors)
-        return Response(request.data)
+
+        serializer.save()
+        response = {
+            'data': {
+                'id': serializer.instance.id,
+                'status': 'created'
+            }
+        }
+        return Response(response)

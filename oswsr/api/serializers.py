@@ -15,9 +15,9 @@ class LoginSerializer(serializers.ModelSerializer):
 
 class UserListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
-        iterable = data.all() if isinstance(data, User) else data
-        res = [self.child.to_representation(item) for item in iterable]
-        return {'data': res}
+        return {
+            'data': super().to_representation(data)
+        }
 
     @property
     def data(self):
@@ -37,15 +37,14 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.ModelSerializer):
     role_id = serializers.PrimaryKeyRelatedField(
         write_only=True,
-        queryset=Role.objects.all(),
+        queryset=Role.objects.all()
     )
 
-    def validate_login(self, value):
-        if len(value) != 3:
-            raise serializers.ValidationError("Короткий логин")
-        return value
+    def create(self, validated_data):
+        role_id = validated_data['role_id'].id
+        validated_data['role_id'] = role_id
+        return User.objects.create(**validated_data)
 
     class Meta:
         model = User
         exclude = ['role']
-

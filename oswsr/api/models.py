@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from rest_framework.authentication import get_authorization_header
 
+from .utilities import get_name_file
+
 
 class Role(models.Model):
     name = models.CharField(max_length=100, blank=False)
@@ -11,17 +13,18 @@ class Role(models.Model):
     class Meta:
         db_table = 'roles'
 
+
 class User(AbstractBaseUser):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, blank=True)
     surname = models.CharField(max_length=100, blank=True)
     patronymic = models.CharField(max_length=100, blank=True)
-    login = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255, blank=False)
-    photo_file = models.CharField(max_length=255, blank=True)
-    api_token = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=255, blank=True)
+    login = models.CharField(max_length=254, unique=True)
+    password = models.CharField(max_length=254, blank=False)
+    photo_file = models.ImageField(max_length=254, upload_to=get_name_file, blank=True, null=True)
+    api_token = models.CharField(max_length=254, blank=True)
+    status = models.CharField(max_length=254, choices=[('working', 'working'), ('fired', 'fired')], default='working')
     last_login = models.DateTimeField(db_column='updated_at', blank=True, null=True)
-    role = models.ForeignKey(Role, related_name='role',on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
 
     USERNAME_FIELD = 'login'
     objects = BaseUserManager()
