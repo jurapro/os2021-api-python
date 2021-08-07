@@ -29,7 +29,7 @@ def login(request):
     user.save()
 
     response = {
-        'date': {
+        'data': {
             'user_token': user.api_token,
         }
     }

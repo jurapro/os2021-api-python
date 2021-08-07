@@ -1,4 +1,5 @@
 from rest_framework.exceptions import APIException
+from rest_framework.response import Response
 
 
 class CafeAPIException(APIException):
@@ -11,7 +12,7 @@ class CafeAPIException(APIException):
                 'message': message
             }
         }
-        super().__init__(response, code)
+        self.detail = response
 
 
 class CafeValidationAPIException(APIException):
@@ -25,4 +26,4 @@ class CafeValidationAPIException(APIException):
                 'errors': errors
             }
         }
-        super().__init__(response, code)
+        self.detail = response

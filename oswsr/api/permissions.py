@@ -21,6 +21,6 @@ class IsAdmin(IsAuthenticated):
         super().has_permission(request, view)
         user = User.get_auth_user(request=request)
         if user.role.code != 'admin':
-            raise CafeAPIException(message='Forbidden for you”',
+            raise CafeAPIException(message='Forbidden for you',
                                    code=status.HTTP_403_FORBIDDEN)
         return True
