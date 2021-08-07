@@ -68,3 +68,17 @@ class WorkShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkShift
         exclude = ['active']
+
+
+class WorkSiftDetailSerializer(serializers.ModelSerializer):
+    start = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    end = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
+    def to_representation(self, instance):
+        return {
+            'data': super().to_representation(instance)
+        }
+
+    class Meta:
+        model = WorkShift
+        fields = '__all__'

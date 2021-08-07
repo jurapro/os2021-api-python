@@ -8,7 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 from .exceptions import CafeValidationAPIException, CafeAPIException
 from .models import User, WorkShift
 from .permissions import IsAuthenticated, IsAdmin
-from .serializers import UserSerializer, LoginSerializer, UserCreateSerializer, WorkShiftSerializer
+from .serializers import UserSerializer, LoginSerializer, UserCreateSerializer, WorkShiftSerializer, \
+    WorkSiftDetailSerializer
 
 
 @api_view(['POST'])
@@ -88,9 +89,25 @@ class WorkShiftViewSet(ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(methods=['post'], detail=True)
+    @action(methods=['GET'], detail=True)
     def open(self, request, pk=None):
-        return Response({
-            'id': pk,
-            'start': self.get_object().start
-        })
+        if WorkShift.objects.filter(active=True).first():
+            raise CafeAPIException(message='Forbidden. There are open shifts!',
+                                   code=status.HTTP_403_FORBIDDEN)
+        work_shift = self.get_object()
+        work_shift.active = True
+        work_shift.save()
+        serializer = WorkSiftDetailSerializer(work_shift)
+        return Response(serializer.data)
+
+    @action(methods=['GET'], detail=True)
+    def close(self, request, pk=None):
+        work_shift = self.get_object()
+        if not work_shift.active:
+            raise CafeAPIException(message='Forbidden. The shift is already closed!',
+                                   code=status.HTTP_403_FORBIDDEN)
+
+        work_shift.active = False
+        work_shift.save()
+        serializer = WorkSiftDetailSerializer(work_shift)
+        return Response(serializer.data)
