@@ -6,10 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from .exceptions import CafeValidationAPIException, CafeAPIException
-from .models import User, WorkShift
+from .models import User, WorkShift, ShiftWorker
 from .permissions import IsAuthenticated, IsAdmin
 from .serializers import UserSerializer, LoginSerializer, UserCreateSerializer, WorkShiftSerializer, \
-    WorkSiftDetailSerializer
+    WorkSiftDetailSerializer, ShiftWorkerSerializer
 
 
 @api_view(['POST'])
@@ -111,3 +111,27 @@ class WorkShiftViewSet(ModelViewSet):
         work_shift.save()
         serializer = WorkSiftDetailSerializer(work_shift)
         return Response(serializer.data)
+
+    @action(methods=['POST'], detail=True)
+    def user(self, request, pk=None):
+        serializer = ShiftWorkerSerializer(data=request.data)
+        if not (serializer.is_valid()):
+            raise CafeValidationAPIException(message='Validation error',
+                                             code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                             errors=serializer.errors)
+        work_shift = self.get_object()
+        user = serializer.validated_data['user_id']
+
+        if work_shift.workers.filter(id=user.id).first():
+            raise CafeAPIException(message='Forbidden. The worker is already on shift!',
+                                   code=status.HTTP_403_FORBIDDEN)
+
+        ShiftWorker.objects.create(user=user,
+                                   work_shift=work_shift)
+        response = {
+            'data': {
+                'id_user': user.id,
+                'status': 'added'
+            }
+        }
+        return Response(response, status=status.HTTP_200_OK)

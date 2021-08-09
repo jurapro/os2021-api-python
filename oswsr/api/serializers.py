@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.fields import CharField
 
-from .models import User, Role, WorkShift
+from .models import User, Role, WorkShift, ShiftWorker
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -82,3 +82,14 @@ class WorkSiftDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkShift
         fields = '__all__'
+
+
+class ShiftWorkerSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = ShiftWorker
+        exclude = ['user', 'work_shift']

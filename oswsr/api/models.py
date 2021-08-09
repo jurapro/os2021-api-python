@@ -49,5 +49,15 @@ class WorkShift(models.Model):
     end = models.DateTimeField(blank=False)
     active = models.BooleanField(blank=True, default=False)
 
+    workers = models.ManyToManyField(User, through='ShiftWorker')
+
     class Meta:
         db_table = 'work_shifts'
+
+
+class ShiftWorker(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    work_shift = models.ForeignKey(WorkShift, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'shift_workers'
