@@ -1,8 +1,9 @@
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.fields import CharField
+from rest_framework.response import Response
 
-from .models import User, Role, WorkShift, ShiftWorker
+from .models import User, Role, WorkShift, ShiftWorker, Order
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -93,3 +94,36 @@ class ShiftWorkerSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShiftWorker
         exclude = ['user', 'work_shift']
+
+
+class OrderListSerializer(serializers.HyperlinkedModelSerializer):
+    table = serializers.ReadOnlyField(source='table.name')
+    shift_workers = serializers.ReadOnlyField(source='shift_worker.user.name')
+    create_at = serializers.ReadOnlyField(source='created_at')
+    status = serializers.ReadOnlyField(source='status_order.name')
+    price = serializers.SerializerMethodField()
+
+    def get_price(self, obj):
+        return 1000
+
+    class Meta:
+        model = Order
+        fields = ['id', 'table', 'shift_workers', 'create_at', 'status', 'price']
+
+
+class ShiftOrdersSerializer(serializers.HyperlinkedModelSerializer):
+    active = serializers.IntegerField()
+    orders = serializers.SerializerMethodField()
+    amount_for_all = serializers.SerializerMethodField()
+
+    def get_orders(self, obj):
+        serializer = OrderListSerializer(data=obj.get_orders(), many=True)
+        serializer.is_valid()
+        return serializer.data
+
+    def get_amount_for_all(self, obj):
+        return 10000
+
+    class Meta:
+        model = WorkShift
+        fields = ['id', 'start', 'end', 'active', 'orders', 'amount_for_all']

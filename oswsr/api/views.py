@@ -9,7 +9,7 @@ from .exceptions import CafeValidationAPIException, CafeAPIException
 from .models import User, WorkShift, ShiftWorker
 from .permissions import IsAuthenticated, IsAdmin
 from .serializers import UserSerializer, LoginSerializer, UserCreateSerializer, WorkShiftSerializer, \
-    WorkSiftDetailSerializer, ShiftWorkerSerializer
+    WorkSiftDetailSerializer, ShiftWorkerSerializer, ShiftOrdersSerializer
 
 
 @api_view(['POST'])
@@ -135,3 +135,11 @@ class WorkShiftViewSet(ModelViewSet):
             }
         }
         return Response(response, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True)
+    def order(self, request, pk=None):
+        work_shift = self.get_object()
+        serializer = ShiftOrdersSerializer(work_shift)
+        return Response({
+            'data': serializer.data
+        })
