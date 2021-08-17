@@ -104,7 +104,7 @@ class OrderListSerializer(serializers.HyperlinkedModelSerializer):
     price = serializers.SerializerMethodField()
 
     def get_price(self, obj):
-        return 1000
+        return obj.get_price()
 
     class Meta:
         model = Order
@@ -122,7 +122,10 @@ class ShiftOrdersSerializer(serializers.HyperlinkedModelSerializer):
         return serializer.data
 
     def get_amount_for_all(self, obj):
-        return 10000
+        price = 0
+        for order in obj.get_orders():
+            price += order.get_price()
+        return price
 
     class Meta:
         model = WorkShift

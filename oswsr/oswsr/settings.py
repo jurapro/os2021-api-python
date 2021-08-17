@@ -75,10 +75,11 @@ WSGI_APPLICATION = 'oswsr.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '/opt/lampp/var/mysql/mysql.sock',
+        'NAME': 'cafe-api',
+        'USER': 'user',
+        'PASSWORD': 'user',
+        #'HOST': '/opt/lampp/var/mysql/mysql.sock',
+        'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',

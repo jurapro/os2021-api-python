@@ -85,12 +85,36 @@ class Table(models.Model):
         db_table = 'tables'
 
 
+class Menu(models.Model):
+    name = models.CharField(max_length=255, blank=False)
+    description = models.CharField(max_length=255, blank=False)
+    price = models.FloatField(blank=False)
+
+    class Meta:
+        db_table = 'menus'
+
+
 class Order(models.Model):
     number_of_person = models.IntegerField(blank=True)
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='orders')
     shift_worker = models.ForeignKey(ShiftWorker, on_delete=models.CASCADE, related_name='orders')
     status_order = models.ForeignKey(Status, on_delete=models.CASCADE, related_name='orders')
     created_at = models.DateTimeField(blank=True)
+    menu = models.ManyToManyField(Menu, through='OrderMenu', related_name='orders')
+
+    def get_price(self):
+        price = 0
+        for menu in self.menu.all():
+            price += menu.price
+        return price
 
     class Meta:
         db_table = 'orders'
+
+
+class OrderMenu(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_menus')
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='order_menus')
+
+    class Meta:
+        db_table = 'order_menus'
